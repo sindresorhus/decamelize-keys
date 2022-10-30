@@ -1,6 +1,6 @@
 {
 	"name": "decamelize-keys",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "Convert object keys from camel case",
 	"license": "MIT",
 	"repository": "sindresorhus/decamelize-keys",
