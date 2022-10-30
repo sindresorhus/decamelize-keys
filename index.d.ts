@@ -139,7 +139,7 @@ export default function decamelizeKeys<
 	OptionsType extends Options<Separator> = Options<Separator>,
 >(
 	input: T,
-	options?: OptionsType
+	options?: Options<Separator>
 ): DecamelizeKeys<
 T,
 Separator,
