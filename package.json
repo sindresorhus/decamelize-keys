@@ -1,0 +1,59 @@
+{
+	"name": "decamelize-keys",
+	"version": "1.1.1",
+	"description": "Convert object keys from camel case",
+	"license": "MIT",
+	"repository": "sindresorhus/decamelize-keys",
+	"funding": "https://github.com/sponsors/sindresorhus",
+	"author": {
+		"name": "Sindre Sorhus",
+		"email": "sindresorhus@gmail.com",
+		"url": "https://sindresorhus.com"
+	},
+	"type": "module",
+	"exports": {
+		"types": "./index.d.ts",
+		"default": "./index.js"
+	},
+	"engines": {
+		"node": ">=14.16"
+	},
+	"scripts": {
+		"test": "xo && ava && tsd"
+	},
+	"files": [
+		"index.js",
+		"index.d.ts"
+	],
+	"keywords": [
+		"map",
+		"object",
+		"key",
+		"keys",
+		"decamelize",
+		"decamelcase",
+		"uncamelcase",
+		"camelcase",
+		"camel-case",
+		"camel",
+		"case",
+		"separator",
+		"string",
+		"text",
+		"convert",
+		"deep",
+		"recurse",
+		"recursive"
+	],
+	"dependencies": {
+		"decamelize": "^6.0.0",
+		"map-obj": "^4.3.0",
+		"quick-lru": "^6.1.1",
+		"type-fest": "^3.1.0"
+	},
+	"devDependencies": {
+		"ava": "^5.0.1",
+		"tsd": "^0.24.1",
+		"xo": "^0.52.4"
+	}
+}
