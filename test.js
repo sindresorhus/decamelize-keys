@@ -22,6 +22,23 @@ test('deep option', t => {
 	);
 });
 
+test('stopPaths option', t => {
+	t.deepEqual(
+		decamelizeKeys({fooBar: true, obj: {oneTwo: false, arr: [{threeFour: true}]}}, {deep: true, stopPaths: ['obj.arr']}),
+		{'foo_bar': true, obj: {'one_two': false, arr: [{threeFour: true}]}},
+	);
+
+	t.deepEqual(
+		decamelizeKeys({fooBar: true, obj: {oneTwo: false, arr: [{threeFour: true}]}}, {deep: true, stopPaths: ['obj']}),
+		{'foo_bar': true, obj: {oneTwo: false, arr: [{threeFour: true}]}},
+	);
+
+	t.deepEqual(
+		decamelizeKeys({fooBar: true, obj: {oneTwo: false, arr: [{threeFour: true}]}}, {deep: true, stopPaths: ['obj.arr.0']}),
+		{'foo_bar': true, obj: {'one_two': false, arr: [{'three_four': true}]}},
+	);
+});
+
 test('handles nested arrays', t => {
 	t.deepEqual(
 		decamelizeKeys({fooBar: [['a', 'b']]}, {deep: true}),
