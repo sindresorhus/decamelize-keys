@@ -60,6 +60,40 @@ Default: `[]`
 
 Exclude keys from being decamelized.
 
+#### stopPaths
+Type: `string`\
+Default: `[]`
+
+Exclude children at the given object paths in dot-notation from being decamel-cased. For example, with an object like {a: {b: '🦄'}}, the object path to reach the unicorn is 'a.b'.
+
+```
+camelcaseKeys({
+	aB: 1,
+	aC: {
+		cD: 1,
+		cE: {
+			eF: 1
+		}
+	}
+}, {
+	deep: true,
+	stopPaths: [
+		'aC.cE'
+	]
+}),
+/*
+{
+	a_b: 1,
+	a_c: {
+		c_d: 1,
+		c_e: {
+			eF: 1
+		}
+	}
+}
+*/
+```
+
 ##### deep
 
 Type: `boolean`\
