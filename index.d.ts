@@ -33,6 +33,7 @@ export type DecamelizeKeys<
 	Separator extends string = '_',
 	Exclude extends readonly unknown[] = EmptyTuple,
 	Deep extends boolean = false,
+	StopPaths extends readonly string[] = EmptyTuple,
 > = T extends readonly any[]
 	// Handle arrays or tuples.
 	? {
@@ -44,7 +45,8 @@ export type DecamelizeKeys<
 				T[P],
 				Separator,
 				Exclude,
-				Deep
+				Deep,
+				StopPaths
 				>
 			: T[P];
 	}
@@ -62,7 +64,8 @@ export type DecamelizeKeys<
 					T[P],
 					Separator,
 					Exclude,
-					Deep
+					Deep,
+					StopPaths
 					>
 					: T[P];
 		}
@@ -113,6 +116,39 @@ type Options<Separator> = {
 	```
 	*/
 	readonly deep?: boolean;
+	/**
+    Exclude children at the given object paths in dot-notation from being decamel-cased. For example, with an object like {a: {b: '🦄'}}, the object path to reach the unicorn is 'a.b'.
+	If this option can be statically determined, it's recommended to add `as const` to it.
+	@default []
+	@example
+	```
+	import decamelizeKeys from 'decamelize-keys';
+	decamelizeKeys({
+		aB: 1,
+		aC: {
+			cD: 1,
+			cE: {
+				eF: 1
+			}
+		}
+	}, {
+		deep: true,
+		stopPaths: [
+			'aC.cE'
+		]
+	}),
+	// {
+	// 	a_b: 1,
+	// 	a_c: {
+	// 		c_d: 1,
+	// 		c_e: {
+	// 			eF: 1
+	// 		}
+	// 	}
+	// }
+	```
+	*/
+	readonly stopPaths?: readonly string[];
 };
 
 /**
@@ -144,5 +180,6 @@ export default function decamelizeKeys<
 T,
 Separator,
 WithDefault<OptionsType['exclude'], EmptyTuple>,
-WithDefault<OptionsType['deep'], false>
+WithDefault<OptionsType['deep'], false>,
+WithDefault<OptionsType['stopPaths'], EmptyTuple>
 >;

@@ -67,7 +67,7 @@ Default: `[]`
 Exclude children at the given object paths in dot-notation from being decamel-cased. For example, with an object like {a: {b: '🦄'}}, the object path to reach the unicorn is 'a.b'.
 
 ```
-camelcaseKeys({
+decamelizeKeys({
 	aB: 1,
 	aC: {
 		cD: 1,
