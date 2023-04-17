@@ -26,6 +26,13 @@ type IsInclude<List extends readonly unknown[], Target> = List extends undefined
 			: boolean;
 
 /**
+Append a segment to dot-notation path.
+*/
+type AppendPath<S extends string, Last extends string> = S extends ''
+	? Last
+	: `${S}.${Last}`;
+
+/**
 Convert the keys of an object from camel case.
 */
 export type DecamelizeKeys<
@@ -34,6 +41,7 @@ export type DecamelizeKeys<
 	Exclude extends readonly unknown[] = EmptyTuple,
 	Deep extends boolean = false,
 	StopPaths extends readonly string[] = EmptyTuple,
+	Path extends string = '',
 > = T extends readonly any[]
 	// Handle arrays or tuples.
 	? {
@@ -57,17 +65,23 @@ export type DecamelizeKeys<
 			P in keyof T as [IsInclude<Exclude, P>] extends [true]
 				? P
 				: DelimiterCase<P, Separator>
-			]: Record<string, unknown> extends DecamelizeKeys<T[P]>
+			]: [IsInclude<StopPaths, AppendPath<Path, P & string>>] extends [
+				true,
+			]
 				? T[P]
-				: [Deep] extends [true]
-					? DecamelizeKeys<
-					T[P],
-					Separator,
-					Exclude,
-					Deep,
-					StopPaths
-					>
-					: T[P];
+				// eslint-disable-next-line @typescript-eslint/ban-types
+				: {} extends DecamelizeKeys<T[P]>
+					? T[P]
+					: [Deep] extends [true]
+						? DecamelizeKeys<
+						T[P],
+						Separator,
+						Exclude,
+						Deep,
+						StopPaths,
+						AppendPath<Path, P & string>
+						>
+						: T[P];
 		}
 		// Return anything else as-is.
 		: T;
@@ -167,6 +181,16 @@ decamelizeKeys({fooBar: true});
 // Convert an array of objects
 decamelizeKeys([{fooBar: true}, {barFoo: false}]);
 //=> [{foo_bar: true}, {bar_foo: false}]
+
+decamelizeKeys({fooBar: true, nested: {unicornRainbow: true}}, {deep: true});
+//=> {{foo_bar: true, nested: {unicorn_rainbow: true}}
+
+decamelizeKeys({aB: 1, aC: {cD: 1, cE: {e_f: 1}}}, {deep: true, stopPaths: ['aC.cE']}),
+//=> {a_b: 1, a_c: {c_d: 1, c_e: {e_f: 1}}}
+
+// Convert object keys with custom separators
+decamelizeKeys({fooBar: true, Nested: {unicornRainbow: true}}, {deep: true, separator: '-'});
+//=> {'foo-bar': true, nested: {'unicorn-rainbow': true}}
 ```
 */
 export default function decamelizeKeys<
