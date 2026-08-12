@@ -33,7 +33,9 @@ export type DecamelizeKeys<
 	Separator extends string = '_',
 	Exclude extends readonly unknown[] = EmptyTuple,
 	Deep extends boolean = false,
-> = T extends readonly any[]
+> = T extends Date | Error | RegExp
+	? T
+	: T extends readonly any[]
 	// Handle arrays or tuples.
 	? {
 		[P in keyof T]: T[P] extends Record<string, any> | readonly any[]
@@ -139,7 +141,7 @@ export default function decamelizeKeys<
 	OptionsType extends Options<Separator> = Options<Separator>,
 >(
 	input: T,
-	options?: Options<Separator>
+	options?: OptionsType & Options<Separator>
 ): DecamelizeKeys<
 T,
 Separator,
