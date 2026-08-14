@@ -16,6 +16,34 @@ expectType<{foo_bar: boolean; nested: {unicorn_rainbow: boolean}}>(
 expectType<Array<{foo_bar: boolean; nested: {unicorn_rainbow: boolean}}>>(
 	decamelizeKeys([{fooBar: true, nested: {unicornRainbow: true}}], {deep: true}),
 );
+expectType<{'foo-bar': boolean; nested: {'unicorn-rainbow': boolean}}>(
+	decamelizeKeys(
+		{fooBar: true, nested: {unicornRainbow: true}},
+		{deep: true, separator: '-' as const},
+	),
+);
+
+const shallowResult = decamelizeKeys(
+	{fooBar: true, nested: {unicornRainbow: true}},
+	{deep: false},
+);
+expectType<{foo_bar: boolean; nested: {unicornRainbow: boolean}}>(shallowResult);
+expectNotType<{foo_bar: boolean; nested: {unicorn_rainbow: boolean}}>(shallowResult);
+
+expectType<{fooBar: true; nested_object: {keepCamel: boolean; change_me: boolean}}>(
+	decamelizeKeys(
+		{fooBar: true, nestedObject: {keepCamel: true, changeMe: true}},
+		{deep: true, exclude: ['fooBar', 'keepCamel'] as const},
+	),
+);
+
+expectAssignable<DecamelizeKeys<{
+	fooBar: boolean;
+	nested: {unicornRainbow: boolean};
+}, '_', [], true>>({
+	foo_bar: true,
+	nested: {unicorn_rainbow: true},
+});
 expectType<{foo_bar: boolean; created_at: Date}>(
 	decamelizeKeys({fooBar: true, createdAt: new Date()}, {deep: true}),
 );
