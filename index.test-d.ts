@@ -16,8 +16,10 @@ expectType<{nested: {fooBar: true} | {foo_bar: true}}>(
 );
 
 // Mixed array element unions are transformed distributively.
+// eslint-disable-next-line @typescript-eslint/ban-types
 expectType<{items: Array<{foo_bar: boolean} | null>}>(
 	decamelizeKeys(
+		// eslint-disable-next-line @typescript-eslint/ban-types
 		{items: [{fooBar: true}, null] as Array<{fooBar: boolean} | null>},
 		{deep: true},
 	),
@@ -54,6 +56,7 @@ expectType<{fooBar: true; nested_object: {keepCamel: boolean; change_me: boolean
 	),
 );
 
+/* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/naming-convention */
 expectAssignable<DecamelizeKeys<{
 	fooBar: boolean;
 	nested: {unicornRainbow: boolean};
@@ -61,11 +64,12 @@ expectAssignable<DecamelizeKeys<{
 	foo_bar: true,
 	nested: {unicorn_rainbow: true},
 });
+/* eslint-enable @typescript-eslint/ban-types, @typescript-eslint/naming-convention */
 expectType<{foo_bar: boolean; created_at: Date}>(
 	decamelizeKeys({fooBar: true, createdAt: new Date()}, {deep: true}),
 );
 expectType<{foo_bar: boolean; thrown_error: Error; match_pattern: RegExp}>(
-	decamelizeKeys({fooBar: true, thrownError: new Error(), matchPattern: /fooBar/}, {deep: true}),
+	decamelizeKeys({fooBar: true, thrownError: new Error('test'), matchPattern: /fooBar/}, {deep: true}),
 );
 
 // TODO: Port more tests from https://github.com/sindresorhus/camelcase-keys/blob/main/index.test-d.ts

@@ -41,29 +41,29 @@ export type DecamelizeKeys<
 	? T
 	: T extends readonly any[]
 	// Handle arrays or tuples.
-	? {
-		[P in keyof T]: DecamelizeKeysArrayElement<T[P], Separator, Exclude, Deep>;
-	}
-	: T extends Record<string, any>
-		// Handle objects.
 		? {
-			[
-			P in keyof T as [IsInclude<Exclude, P>] extends [true]
-				? P
-				: DelimiterCase<P, Separator>
-			]: Record<string, unknown> extends DecamelizeKeys<T[P]>
-				? T[P]
-				: Deep extends true
-					? DecamelizeKeys<
-					T[P],
-					Separator,
-					Exclude,
-					Deep
-					>
-					: T[P];
+			[P in keyof T]: DecamelizeKeysArrayElement<T[P], Separator, Exclude, Deep>;
 		}
+		: T extends Record<string, any>
+		// Handle objects.
+			? {
+				[
+				P in keyof T as [IsInclude<Exclude, P>] extends [true]
+					? P
+					: DelimiterCase<P, Separator>
+				]: Record<string, unknown> extends DecamelizeKeys<T[P]>
+					? T[P]
+					: Deep extends true
+						? DecamelizeKeys<
+						T[P],
+						Separator,
+						Exclude,
+						Deep
+						>
+						: T[P];
+			}
 		// Return anything else as-is.
-		: T;
+			: T;
 
 type Options<
 	Separator extends string,
