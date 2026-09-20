@@ -74,6 +74,85 @@ decamelizeKeys({fooBar: true, nested: {unicornRainbow: true}}, {deep: true});
 //=> {foo_bar: true, nested: {unicorn_rainbow: true}}
 ```
 
+##### stopPaths
+
+Type: `string[]`\
+Default: `[]`
+
+Exclude children at the given object paths in dot-notation from being decamelized. This option only has an effect together with the `deep` option.
+
+The paths use the input key casing, so for example, with an object like `{aB: {cD: '🦄'}}`, the object path to reach the unicorn is `'aB.cD'`.
+
+The key at a stopped path is still decamelized. Only its children are left alone.
+
+For correct TypeScript types when using this option, add `as const` to the array.
+
+```js
+import decamelizeKeys from 'decamelize-keys';
+
+const object = {
+	aB: 1,
+	aC: {
+		cD: 1,
+		cE: {
+			eF: 1
+		}
+	}
+};
+
+decamelizeKeys(object, {
+	deep: true,
+	stopPaths: [
+		'aC.cE'
+	]
+});
+/*
+{
+	a_b: 1,
+	a_c: {
+		c_d: 1,
+		c_e: {
+			eF: 1
+		}
+	}
+}
+*/
+```
+
+When an object is inside an array, the path is specified without array indices. A `stopPath` applies to all items in the array.
+
+```js
+import decamelizeKeys from 'decamelize-keys';
+
+const object = {
+	fooBar: [
+		{
+			barBaz: {
+				quxQuux: 'value'
+			}
+		}
+	]
+};
+
+decamelizeKeys(object, {
+	deep: true,
+	stopPaths: [
+		'fooBar.barBaz'
+	]
+});
+/*
+{
+	foo_bar: [
+		{
+			bar_baz: {
+				quxQuux: 'value'
+			}
+		}
+	]
+}
+*/
+```
+
 ## Related
 
 - [camelcase-keys](https://github.com/sindresorhus/camelcase-keys) - The inverse of this package.

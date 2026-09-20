@@ -30,13 +30,19 @@ const transform = (input, options = {}) => {
 	const {
 		separator = '_',
 		exclude,
+		stopPaths,
 		deep = false,
 	} = options;
+
+	const stopPathsSet = new Set(stopPaths);
 
 	const makeMapper = parentPath => (key, value) => {
 		if (deep && isObject(value)) {
 			const path = parentPath === undefined ? key : `${parentPath}.${key}`;
-			value = mapObject(value, makeMapper(path));
+
+			if (!stopPathsSet.has(path)) {
+				value = mapObject(value, makeMapper(path));
+			}
 		}
 
 		if (!(exclude && has(exclude, key))) {
