@@ -3,14 +3,6 @@ import type {DelimiterCase} from 'type-fest';
 // eslint-disable-next-line @typescript-eslint/ban-types
 type EmptyTuple = [];
 
-/**
-Return a default type if input type is nil.
-
-@template T - Input type.
-@template U - Default type.
-*/
-type WithDefault<T, U extends T> = T extends undefined | void | null ? U : T; // eslint-disable-line @typescript-eslint/ban-types
-
 // TODO: Replace this with https://github.com/sindresorhus/type-fest/blob/main/source/includes.d.ts
 /**
 Check if an element is included in a tuple.
@@ -25,6 +17,18 @@ type IsInclude<List extends readonly unknown[], Target> = List extends undefined
 				: IsInclude<Rest, Target>
 			: boolean;
 
+type DecamelizeKeysArrayElement<
+	Element,
+	Separator extends string,
+	Exclude extends readonly unknown[],
+	Deep extends boolean,
+> = Element extends Record<string, any> | readonly any[]
+	// eslint-disable-next-line @typescript-eslint/ban-types
+	? {} extends DecamelizeKeys<Element, Separator>
+		? Element
+		: DecamelizeKeys<Element, Separator, Exclude, Deep>
+	: Element;
+
 /**
 Convert the keys of an object from camel case.
 */
@@ -33,43 +37,39 @@ export type DecamelizeKeys<
 	Separator extends string = '_',
 	Exclude extends readonly unknown[] = EmptyTuple,
 	Deep extends boolean = false,
-> = T extends readonly any[]
+> = T extends Date | Error | RegExp
+	? T
+	: T extends readonly any[]
 	// Handle arrays or tuples.
-	? {
-		[P in keyof T]: T[P] extends Record<string, any> | readonly any[]
-			// eslint-disable-next-line @typescript-eslint/ban-types
-			? {} extends DecamelizeKeys<T[P], Separator>
-				? T[P]
-				: DecamelizeKeys<
-				T[P],
-				Separator,
-				Exclude,
-				Deep
-				>
-			: T[P];
-	}
-	: T extends Record<string, any>
-		// Handle objects.
 		? {
-			[
-			P in keyof T as [IsInclude<Exclude, P>] extends [true]
-				? P
-				: DelimiterCase<P, Separator>
-			]: Record<string, unknown> extends DecamelizeKeys<T[P]>
-				? T[P]
-				: [Deep] extends [true]
-					? DecamelizeKeys<
-					T[P],
-					Separator,
-					Exclude,
-					Deep
-					>
-					: T[P];
+			[P in keyof T]: DecamelizeKeysArrayElement<T[P], Separator, Exclude, Deep>;
 		}
+		: T extends Record<string, any>
+		// Handle objects.
+			? {
+				[
+				P in keyof T as [IsInclude<Exclude, P>] extends [true]
+					? P
+					: DelimiterCase<P, Separator>
+				]: Record<string, unknown> extends DecamelizeKeys<T[P]>
+					? T[P]
+					: Deep extends true
+						? DecamelizeKeys<
+						T[P],
+						Separator,
+						Exclude,
+						Deep
+						>
+						: T[P];
+			}
 		// Return anything else as-is.
-		: T;
+			: T;
 
-type Options<Separator> = {
+type Options<
+	Separator extends string,
+	Exclude extends ReadonlyArray<string | RegExp>,
+	Deep extends boolean,
+> = {
 	/**
 	The character or string used to separate words.
 
@@ -97,7 +97,7 @@ type Options<Separator> = {
 
 	@default []
 	*/
-	readonly exclude?: ReadonlyArray<string | RegExp>;
+	readonly exclude?: Exclude;
 
 	/**
 	Recurse nested objects and objects in arrays.
@@ -112,7 +112,7 @@ type Options<Separator> = {
 	//=> {foo_bar: true, nested: {unicorn_rainbow: true}}
 	```
 	*/
-	readonly deep?: boolean;
+	readonly deep?: Deep;
 };
 
 /**
@@ -136,13 +136,14 @@ decamelizeKeys([{fooBar: true}, {barFoo: false}]);
 export default function decamelizeKeys<
 	T extends Record<string, any> | readonly any[],
 	Separator extends string = '_',
-	OptionsType extends Options<Separator> = Options<Separator>,
+	Exclude extends ReadonlyArray<string | RegExp> = EmptyTuple,
+	Deep extends boolean = false,
 >(
 	input: T,
-	options?: Options<Separator>
+	options?: Options<Separator, Exclude, Deep>
 ): DecamelizeKeys<
 T,
 Separator,
-WithDefault<OptionsType['exclude'], EmptyTuple>,
-WithDefault<OptionsType['deep'], false>
+Exclude,
+Deep
 >;
